@@ -1,3 +1,6 @@
+// EmailItem component displays a single email in the email list
+// showing sender, subject, date, and security indicators
+
 import React from 'react';
 import { Email } from '../../types/types';
 import { AlertTriangle, ExternalLink, Paperclip } from 'lucide-react';
@@ -10,6 +13,7 @@ interface EmailItemProps {
 }
 
 const EmailItem: React.FC<EmailItemProps> = ({ email, isSelected, onSelect }) => {
+  // Apply conditional classes for selected and unread states
   const itemClasses = `flex flex-col p-4 cursor-pointer ${
     isSelected 
       ? 'bg-blue-50 border-l-4 border-l-blue-500' 
@@ -24,17 +28,18 @@ const EmailItem: React.FC<EmailItemProps> = ({ email, isSelected, onSelect }) =>
       aria-selected={isSelected}
     >
       <div className="flex justify-between items-start mb-1">
-        <div className="flex items-center">
+        <div className="flex items-center space-x-2">
           <span className={`text-sm ${email.read ? 'text-gray-700' : 'text-gray-900'}`}>
             {email.sender.name}
           </span>
           {email.isExternal && (
-            <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
               External
             </span>
           )}
           {email.isFlagged && (
-            <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full flex items-center">
+              <AlertTriangle className="w-3 h-3 mr-1" />
               Warning
             </span>
           )}

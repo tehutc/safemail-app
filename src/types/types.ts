@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 // Email Types
 export interface Email {
   id: string;
@@ -15,6 +17,7 @@ export interface Email {
   isBlacklisted: boolean;
   isFlagged: boolean;
   attachments?: Attachment[];
+  securityWarnings?: BlacklistRule[];
 }
 
 export interface Attachment {
@@ -26,10 +29,10 @@ export interface Attachment {
 
 // User Types
 export interface User {
-  id: string;
-  name: string;
-  email: string;
-  organization: string;
+  id?: string;
+  name?: string;
+  email?: string;
+  organization?: string;
   domain: string;
 }
 

@@ -1,32 +1,43 @@
 import { User, BlacklistRule } from '../types/types';
-import { currentUser as defaultUser, blacklistRules as defaultRules } from '../data/mockData';
+import { 
+  updateUserSettings as apiUpdateUserSettings, 
+  updateBlacklistRules as apiUpdateBlacklistRules,
+  getBlacklistRules as apiGetBlacklistRules,
+  getUserSettings as apiGetUserSettings
+} from './api';
 
-// Initialize settings in localStorage if not present
-if (!localStorage.getItem('userSettings')) {
-  localStorage.setItem('userSettings', JSON.stringify(defaultUser));
-}
-
-if (!localStorage.getItem('blacklistRules')) {
-  localStorage.setItem('blacklistRules', JSON.stringify(defaultRules));
-}
-
-export const updateUserSettings = (domain: string): void => {
-  const currentUser = JSON.parse(localStorage.getItem('userSettings') || '{}');
-  const updatedUser = {
-    ...currentUser,
-    domain
-  };
-  localStorage.setItem('userSettings', JSON.stringify(updatedUser));
+export const getUserSettings = async (): Promise<User> => {
+  try {
+    return await apiGetUserSettings();
+  } catch (error) {
+    console.error('Error getting user settings:', error);
+    // Return default settings if API call fails
+    return { domain: '' };
+  }
 };
 
-export const getUserSettings = (): User => {
-  return JSON.parse(localStorage.getItem('userSettings') || JSON.stringify(defaultUser));
+export const getBlacklistRules = async (): Promise<BlacklistRule[]> => {
+  try {
+    return await apiGetBlacklistRules();
+  } catch (error) {
+    console.error('Error getting blacklist rules:', error);
+    // Return empty array if API call fails
+    return [];
+  }
 };
 
-export const updateBlacklistRules = (rules: BlacklistRule[]): void => {
-  localStorage.setItem('blacklistRules', JSON.stringify(rules));
+export const updateUserSettings = async (domain: string): Promise<void> => {
+  try {
+    await apiUpdateUserSettings(domain);
+  } catch (error) {
+    console.error('Error updating user settings:', error);
+  }
 };
 
-export const getBlacklistRules = (): BlacklistRule[] => {
-  return JSON.parse(localStorage.getItem('blacklistRules') || '[]');
+export const updateBlacklistRules = async (rules: BlacklistRule[]): Promise<void> => {
+  try {
+    await apiUpdateBlacklistRules(rules);
+  } catch (error) {
+    console.error('Error updating blacklist rules:', error);
+  }
 };

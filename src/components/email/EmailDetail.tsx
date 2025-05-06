@@ -1,8 +1,10 @@
+// EmailDetail component displays the full content of a selected email
+// including security warnings, attachments, and sender information
+
 import React from 'react';
-import { Email, BlacklistRule } from '../../types/types';
+import { Email } from '../../types/types';
 import { AlertTriangle, Paperclip, ExternalLink, ArrowLeft, Flag, Shield } from 'lucide-react';
 import { formatEmailDate } from '../../utils/dateUtils';
-import { getSecurityWarnings } from '../../services/securityService';
 
 interface EmailDetailProps {
   email: Email;
@@ -10,8 +12,7 @@ interface EmailDetailProps {
 }
 
 const EmailDetail: React.FC<EmailDetailProps> = ({ email, onBack }) => {
-  const securityWarnings = getSecurityWarnings(email);
-  
+  // Render warning banner for flagged emails
   const renderWarningBanner = () => {
     if (!email.isFlagged) return null;
     
@@ -37,6 +38,7 @@ const EmailDetail: React.FC<EmailDetailProps> = ({ email, onBack }) => {
     );
   };
   
+  // Render security information section
   const renderSecurityDetails = () => {
     if (!email.isExternal && !email.isBlacklisted) return null;
     
@@ -59,10 +61,10 @@ const EmailDetail: React.FC<EmailDetailProps> = ({ email, onBack }) => {
           </div>
         )}
         
-        {securityWarnings.length > 0 && (
+        {email.securityWarnings && email.securityWarnings.length > 0 && (
           <div className="space-y-2 mt-3">
             <h5 className="text-sm font-medium text-gray-700">Detected Issues:</h5>
-            {securityWarnings.map((warning, index) => (
+            {email.securityWarnings.map((warning, index) => (
               <div key={index} className="flex items-start bg-white p-2 rounded border border-gray-200">
                 <Flag className={`h-4 w-4 mr-2 mt-0.5 ${
                   warning.severity === 'high' ? 'text-red-500' : 
@@ -71,9 +73,9 @@ const EmailDetail: React.FC<EmailDetailProps> = ({ email, onBack }) => {
                 <div>
                   <span className="text-sm font-medium text-gray-700">{warning.description}</span>
                   <p className="text-xs text-gray-500">
-                    {warning.type === 'domain' && `Suspicious domain: ${warning.value}`}
-                    {warning.type === 'email' && `Blocked sender: ${warning.value}`}
-                    {warning.type === 'keyword' && `Suspicious content detected: "${warning.value}"`}
+                    {warning.type === 'domain' && `Blocked domain: ${warning.value}`}
+                    {warning.type === 'email' && `Blocked email: ${warning.value}`}
+                    {warning.type === 'keyword' && `Blocked keyword: "${warning.value}"`}
                   </p>
                 </div>
               </div>
@@ -84,6 +86,7 @@ const EmailDetail: React.FC<EmailDetailProps> = ({ email, onBack }) => {
     );
   };
   
+  // Render attachments section
   const renderAttachments = () => {
     if (!email.attachments || email.attachments.length === 0) return null;
     

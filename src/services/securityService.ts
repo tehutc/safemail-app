@@ -2,15 +2,15 @@ import { Email, BlacklistRule } from '../types/types';
 import { getUserSettings, getBlacklistRules } from './settingsService';
 
 // Check if an email is from an external sender
-export const isExternalEmail = (email: Email): boolean => {
-  const userSettings = getUserSettings();
+export const isExternalEmail = async (email: Email): Promise<boolean> => {
+  const userSettings = await getUserSettings();
   const senderDomain = email.sender.email.split('@')[1];
   return senderDomain !== userSettings.domain;
 };
 
 // Check if an email matches any blacklist rules
-export const checkBlacklist = (email: Email): boolean => {
-  const blacklistRules = getBlacklistRules();
+export const checkBlacklist = async (email: Email): Promise<boolean> => {
+  const blacklistRules = await getBlacklistRules();
   const senderEmail = email.sender.email.toLowerCase();
   const senderDomain = senderEmail.split('@')[1];
   const emailContent = `${email.subject} ${email.body}`.toLowerCase();
@@ -34,8 +34,8 @@ export const checkBlacklist = (email: Email): boolean => {
 };
 
 // Get security warnings for an email
-export const getSecurityWarnings = (email: Email): BlacklistRule[] => {
-  const blacklistRules = getBlacklistRules();
+export const getSecurityWarnings = async (email: Email): Promise<BlacklistRule[]> => {
+  const blacklistRules = await getBlacklistRules();
   const senderEmail = email.sender.email.toLowerCase();
   const senderDomain = senderEmail.split('@')[1];
   const emailContent = `${email.subject} ${email.body}`.toLowerCase();
@@ -55,9 +55,9 @@ export const getSecurityWarnings = (email: Email): BlacklistRule[] => {
 };
 
 // Flag email based on security checks
-export const flagEmail = (email: Email): Email => {
-  const isExternal = isExternalEmail(email);
-  const isBlacklisted = checkBlacklist(email);
+export const flagEmail = async (email: Email): Promise<Email> => {
+  const isExternal = await isExternalEmail(email);
+  const isBlacklisted = await checkBlacklist(email);
   
   return {
     ...email,

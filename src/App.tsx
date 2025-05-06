@@ -6,7 +6,7 @@ import EmailFilters from './components/filters/EmailFilters';
 import EmptyState from './components/email/EmptyState';
 import SettingsDialog from './components/settings/SettingsDialog';
 import { Email, EmailFilter, BlacklistRule } from './types/types';
-import { getEmails, getEmailById, markEmailAsRead, resetEmailReadStates } from './services/emailService';
+import { getEmails, getEmailById, markEmailAsRead } from './services/emailService';
 import { blacklistRules as initialBlacklistRules } from './data/mockData';
 
 function App() {
@@ -31,12 +31,29 @@ function App() {
   // Email state
   const [emails, setEmails] = useState<Email[]>([]);
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
-  const selectedEmail = selectedEmailId ? getEmailById(selectedEmailId) : null;
+  const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   
-  // Reset read states on page refresh
+  // Load emails when filters change
   useEffect(() => {
-    resetEmailReadStates();
-  }, []);
+    const loadEmails = async () => {
+      const fetchedEmails = await getEmails(filters);
+      setEmails(fetchedEmails);
+    };
+    loadEmails();
+  }, [filters]);
+  
+  // Load selected email
+  useEffect(() => {
+    const loadEmail = async () => {
+      if (selectedEmailId) {
+        const email = await getEmailById(selectedEmailId);
+        setSelectedEmail(email || null);
+      } else {
+        setSelectedEmail(null);
+      }
+    };
+    loadEmail();
+  }, [selectedEmailId]);
   
   // Apply search query with debounce
   useEffect(() => {
@@ -47,15 +64,10 @@ function App() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
   
-  // Get filtered emails
-  useEffect(() => {
-    setEmails(getEmails(filters));
-  }, [filters]);
-  
   // Handle email selection
-  const handleSelectEmail = (emailId: string) => {
+  const handleSelectEmail = async (emailId: string) => {
     setSelectedEmailId(emailId);
-    markEmailAsRead(emailId);
+    await markEmailAsRead(emailId);
     
     // Update the emails list to reflect the read status
     setEmails(prevEmails => 
